@@ -80,11 +80,14 @@ temp$X__1 <- gsub("00\"", "00", temp$X__1)
 temp$X__1 <- gsub(",", ".", temp$X__1)
 temp$X__1 <- chartr("ÓÕÒO", "0000", temp$X__1) 
 temp$X__1 <- chartr("ÓÕÒO", "0000", temp$X__1)
+temp$X__1 <- gsub("Q", "0", temp$X__2) #adicao, novo
 temp$X__2 <- gsub("U.UU", "0.00", temp$X__2)
 temp$X__2 <- gsub("Ú,UÚ", "0.00", temp$X__2)
 temp$X__2 <- gsub(",", ".", temp$X__2)
 temp$`VALOR \\ UFIR` <- gsub(",", ".", temp$`VALOR \\ UFIR`) #modificado da planilha 24
 temp$`VALOR \\ UFIR` <- gsub("\\^", "", temp$`VALOR \\ UFIR`) #modificado da planilha 24
+temp$`VALOR \\ UFIR` <- gsub("Ò", "0", temp$`VALOR \\ UFIR`) #novo por cause de erro novo de conversao
+
 
 #Fixing problems with accents/encoding
 temp$DOADOR <- chartr("ÇÀÁÃÂÉÊÍÓÕÒÔÚÜ", "CAAAAEEIOOOOUU", temp$DOADOR) 
