@@ -921,3 +921,117 @@ temp <- temp[-67,]
 
 readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0036.csv"))
 
+##############################################################
+############################### p8-79 - 0038
+##############################################################
+
+home <- "C:/Users/9371814/Dropbox/Brazil Contributions Data/"
+
+temp <- read_excel(paste0(home, "Coding/conversion/p8-79.xlsx/p8-79 - 0038.xlsx"))
+
+
+
+#Fixing errors related to contribution/expenses values
+temp$`R$` %<>% str_replace_all("R\\$", "") %>% 
+  str_replace_all("RS", "") %>% 
+  str_replace_all("CX3", "00") %>% 
+  str_replace_all("f", "") %>% 
+  str_replace_all("i", "1") %>% #Intuitivamente dá para saber que o i vale 1
+  str_replace_all("o", "0") %>% 
+  str_replace_all("\"00“", "00") %>% 
+  str_replace_all("00\"", "00") %>% 
+  str_replace_all(",", ".") %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  str_replace_all("Q", "0") %>% 
+  str_replace_all("C", "0") %>% 
+  str_replace_all("_", "") %>% 
+  str_replace_all("ÍQ", "10") %>% 
+  str_replace_all("J", ".") %>% 
+  str_replace_all(" ", "") %>% 
+  str_replace_all("Í", "1") %>% 
+  str_replace_all("\\(/00v", "0.00") %>% 
+  str_replace_all("ÇL","0") %>% 
+  str_replace_all("Ç","0") %>% 
+  str_replace_all("a","0") %>% 
+  str_replace_all("R$", "")
+
+temp$`R$`[66] <- "70.00"
+
+temp$`VALOR UFIR` %<>%  str_replace_all(",", ".") %>% #Não deu certo! Talvez tenha que ser mudado manualmente
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("Ò", "0") %>% 
+  str_replace_all("\\'","") %>% 
+  str_replace_all("\\-","") %>% 
+  str_replace_all("\\•","")
+  
+
+
+
+#Fixing problems with accents/encoding
+temp$DOADOR %<>%  chartr("ÇÀÁÃÂÉÊÍÓÕÒÔÚÜ", "CAAAAEEIOOOOUU",.) %>% 
+  str_replace_all("1", "I") %>% 
+  str_replace_all("i", "") %>% 
+  str_replace_all("\\“", "") %>% 
+  str_replace_all("/", "I") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\"","")
+
+temp$DOADOR[66] <- temp$DOADOR[65]
+
+
+temp$`CPF/CGC` %<>%   str_replace_all("\\^", "")  %>% #Alguns casos não poderam ser substituidos pois não tinha a informação sobre eles
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\}", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all(",", ".")%>% 
+  str_replace_all("\\^", "")
+
+temp$`ESPÉCIE RECURSO` %<>% str_to_upper() %>% 
+  str_replace_all("\\[", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_replace_all("\\^", "")%>% 
+  str_replace_all("H", "")%>% 
+  str_replace_all("P", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("“", "")
+
+temp$`ESPÉCIE RECURSO` <- "CARNE BANC."
+
+#Fixing date problems/make sure that dates are actually wrong before doing this
+#Make sure that these are the wrong dates
+temp$`|datã` %<>%   str_replace_all("1996", "1998") %>% 
+  str_replace_all("19061", "1998") %>% 
+  str_replace_all("1906", "1998") %>% 
+  str_replace_all("1908", "1998") %>% 
+  str_replace_all("1900", "1998") %>% 
+  str_replace_all("1968", "1998") %>% 
+  str_replace_all("\\*", "\\/") %>% 
+  str_replace_all("'","") %>% 
+  str_replace("i", "") %>% 
+  str_replace_all("1398", "1998")%>% 
+  str_replace_all("F", "")%>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("f","")
+
+
+for (i in 1:nrow(temp)){
+  if (nchar(temp$`|datã`[i]) < 10){
+    data <- str_sub(temp$`|datã`[i], start = 1, end = 2) %>% 
+      str_c(.,"/")
+    temp$`|datã`[i] <- str_replace(temp$`|datã`[i],str_sub(temp$`|datã`[i], start = 1, end = 2), data)
+  } else{
+    temp$`|datã`[i] %<>%  str_replace_all("i", "")
+  }
+}
+
+temp$`|datã`[1] <- "06/07/1998"
+
+
+#Fixing Coding Form of Resource 
+# temp$`ESPÉCIE RECURSO` <- str_replace_all("É", "E", temp$`ESPÉCIE RECURSO`) 
+
+#Exclude lines unnecessary
+temp <- temp[-67,]
+
+readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0038.csv"))
