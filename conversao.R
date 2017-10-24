@@ -3544,3 +3544,373 @@ temp %<>% select(`CPF/CGC`, espaco,DATA_2,VALOR,DOADOR, espaco2,espaco3,`ESPECIE
 
 readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0068.csv"))
 
+##############################################################
+############################### p8-79 - 0070
+##############################################################
+
+home <- "C:/Users/9371814/Dropbox/Brazil Contributions Data/"
+
+#Os dados deste documento tiveram que passar por uma correcao manual primeiro
+temp <- read_excel(paste0(home, "Coding/conversion/p8-79.xlsx/p8-79 - 0070 R- Nathan.xlsx"))
+
+
+#Fixing errors related to contribution/expenses values
+temp$`VALOR/ Cp&` %<>% str_replace_all("R\\$", "") %>% 
+  str_replace_all("RS", "") %>% 
+  str_replace_all("CX3", "00") %>% 
+  str_replace_all("f", "") %>% 
+  str_replace_all("i", "1") %>% #Intuitivamente dá para saber que o i vale 1
+  str_replace_all("o", "0") %>% 
+  str_replace_all("\"00“", "00") %>% 
+  str_replace_all("00\"", "00") %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  str_replace_all("Q", "0") %>% 
+  str_replace_all("C", "0") %>% 
+  str_replace_all("_", "") %>% 
+  str_replace_all("ÍQ", "10") %>% 
+  str_replace_all("J", ".") %>% 
+  str_replace_all(" ", "") %>% 
+  str_replace_all("Í", "1") %>% 
+  str_replace_all("\\(/00v", "0.00") %>% 
+  str_replace_all("ÇL","0") %>% 
+  str_replace_all("Ç","0") %>% 
+  str_replace_all("a","0") %>% 
+  str_replace_all("R$", "") %>% 
+  str_replace_all("b0]", "00") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("\\$", "") %>% 
+  str_replace_all("T0", "00") %>% 
+  str_replace_all("R", "") %>% 
+  str_replace_all("D", "0") %>% 
+  str_replace_all("I", "") %>% 
+  str_replace("\\.",",") %>% 
+  str_replace_all("\\(", "") %>% 
+  str_replace_all("\\;", "") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all("Õ", "0") %>% 
+  str_replace_all("k", "") %>% 
+  str_replace_all("-", "")
+
+temp$`VALOR/ Cp&`[c(1,50,56,66)] <- c("10,00", "10,00","20,00","10,00")
+
+#Fixing problems with accents/encoding
+temp$DOADOR %<>%  chartr("ÇÀÁÃÂÉÊÍÓÕÒÔÚÜ", "CAAAAEEIOOOOUU",.) %>% 
+  str_replace_all("1", "I") %>% 
+  str_replace_all("i", "") %>% 
+  str_replace_all("\\“", "") %>% 
+  str_replace_all("/", "I") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_to_upper() %>% 
+  str_replace_all("\\,", "") %>% 
+  str_replace_all("\\.", "") %>% 
+  str_replace_all("\\-", "")
+
+temp$DOADOR[7] <- temp$DOADOR[6]
+
+temp$`CPF/CGC` %<>%   str_replace_all("\\^", "")  %>% #Alguns casos não poderam ser substituidos pois não tinha a informação sobre eles
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\}", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all(",", ".")%>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("h", "") %>% 
+  str_replace_all("-", "")
+
+temp$`CPF/CGC`[66] <- temp$`CPF/CGC`[62]
+
+temp$`ESPÉCIE RECURSO` %<>% str_to_upper() %>% 
+  str_replace_all("\\[", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_replace_all("\\^", "")%>% 
+  str_replace_all("H", "")%>% 
+  str_replace_all("P", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("Í", "") %>% 
+  str_replace_all("'","") %>% 
+  str_replace_all("À", "A") %>% 
+  str_replace_all(",",".") %>% 
+  str_replace_all("~1", "") %>% 
+  str_replace_all("Ã", "A") %>% 
+  str_replace_all("~", "") %>% 
+  str_replace_all("Õ", "O") %>% 
+  str_replace_all("\\CARTÃO", "CARTAO")%>% 
+  str_replace_all("\\CARTÁO", "CARTAO")%>% 
+  str_replace_all("\\CARTÀO", "CARTAO")%>% 
+  str_replace_all("0", "0") %>% 
+  str_replace_all("\\CARNÉ", "CARNE")%>% 
+  str_replace_all("\\CARNÊ", "CARNE")%>% 
+  str_replace_all("\\CARNÈ", "CARNE")
+
+
+#Fixing date problems/make sure that dates are actually wrong before doing this
+#Make sure that these are the wrong dates # CONTINUAR AQUI
+
+temp$DATA_2 <- rep("/12/1998", nrow(temp))
+
+for(i in 1:nrow(temp)){
+  dia <- str_sub(temp$DATA[i], start = 1,end = 2)
+  temp$DATA_2[i] <- str_c(dia,temp$DATA_2[i])
+}
+
+#Fixing Coding Form of Resource 
+
+#Exclude lines unnecessary
+
+
+temp$espaco <- rep(" ", nrow(temp))
+temp$espaco2<- rep(" ", nrow(temp))
+temp$espaco3 <- rep(" ", nrow(temp))
+temp %<>% select(`CPF/CGC`, espaco,DATA_2,`VALOR/ Cp&`,DOADOR, espaco2,espaco3,`ESPÉCIE RECURSO`) 
+
+readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0070.csv"))
+
+##############################################################
+############################### p8-79 - 0071
+##############################################################
+
+home <- "C:/Users/9371814/Dropbox/Brazil Contributions Data/"
+
+#Os dados deste documento tiveram que passar por uma correcao manual primeiro
+temp <- read_excel(paste0(home, "Coding/conversion/p8-79.xlsx/p8-79 - 0071 R- Nathan.xlsx"))
+
+temp$X__1 <- NULL
+
+temp <- rename(temp ,VALOR = `íSSãjSff R$`)
+#Fixing errors related to contribution/expenses values
+temp$VALOR %<>% str_replace_all("R\\$", "") %>% 
+  str_replace_all("RS", "") %>% 
+  str_replace_all("CX3", "00") %>% 
+  str_replace_all("f", "") %>% 
+  str_replace_all("i", "1") %>% #Intuitivamente dá para saber que o i vale 1
+  str_replace_all("o", "0") %>% 
+  str_replace_all("\"00“", "00") %>% 
+  str_replace_all("00\"", "00") %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  str_replace_all("Q", "0") %>% 
+  str_replace_all("C", "0") %>% 
+  str_replace_all("_", "") %>% 
+  str_replace_all("ÍQ", "10") %>% 
+  str_replace_all("J", ".") %>% 
+  str_replace_all(" ", "") %>% 
+  str_replace_all("Í", "1") %>% 
+  str_replace_all("\\(/00v", "0.00") %>% 
+  str_replace_all("ÇL","0") %>% 
+  str_replace_all("Ç","0") %>% 
+  str_replace_all("a","0") %>% 
+  str_replace_all("R$", "") %>% 
+  str_replace_all("b0]", "00") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("\\$", "") %>% 
+  str_replace_all("T0", "00") %>% 
+  str_replace_all("R", "") %>% 
+  str_replace_all("D", "0") %>% 
+  str_replace_all("I", "") %>% 
+  str_replace("\\.",",") %>% 
+  str_replace_all("\\(", "") %>% 
+  str_replace_all("\\;", "") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all("t", "00") %>% 
+  str_replace_all("G", "00")
+
+#Fixing problems with accents/encoding
+temp$DOADOR %<>%  chartr("ÇÀÁÃÂÉÊÍÓÕÒÔÚÜ", "CAAAAEEIOOOOUU",.) %>% 
+  str_replace_all("1", "I") %>% 
+  str_replace_all("i", "") %>% 
+  str_replace_all("\\“", "") %>% 
+  str_replace_all("/", "I") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_to_upper() %>% 
+  str_replace_all("\\,", "") %>% 
+  str_replace_all("\\.", "") %>% 
+  str_replace_all("\\-", "")
+
+temp$`CPF/CGC` %<>%   str_replace_all("\\^", "")  %>% #Alguns casos não poderam ser substituidos pois não tinha a informação sobre eles
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\}", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all(",", ".")%>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("h", "") %>% 
+  str_replace_all(". . -", "")
+
+temp$`ESPECIE RECURSO` %<>% str_to_upper() %>% 
+  str_replace_all("\\[", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_replace_all("\\^", "")%>% 
+  str_replace_all("H", "")%>% 
+  str_replace_all("P", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("Í", "") %>% 
+  str_replace_all("'","") %>% 
+  str_replace_all("À", "A") %>% 
+  str_replace_all(",",".") %>% 
+  str_replace_all("~1", "") %>% 
+  str_replace_all("Ã", "A") %>% 
+  str_replace_all("~", "") %>% 
+  str_replace_all("Õ", "O") %>% 
+  str_replace_all("\\CARTÃO", "CARTAO")%>% 
+  str_replace_all("\\CARTÁO", "CARTAO")%>% 
+  str_replace_all("\\CARTÀO", "CARTAO")%>% 
+  str_replace_all("0", "0") %>% 
+  str_replace_all("\\CARNÉ", "CARNE")%>% 
+  str_replace_all("\\CARNÊ", "CARNE")%>% 
+  str_replace_all("\\CARNÈ", "CARNE") %>% 
+  str_replace_all("1", "")
+
+
+#Fixing date problems/make sure that dates are actually wrong before doing this
+#Make sure that these are the wrong dates # CONTINUAR AQUI
+
+temp$DATA_2 <- rep("/12/1998", nrow(temp))
+
+for(i in 1:nrow(temp)){
+  dia <- str_sub(temp$DATA[i], start = 1,end = 2)
+  temp$DATA_2[i] <- str_c(dia,temp$DATA_2[i])
+}
+
+#Fixing Coding Form of Resource 
+
+#Exclude lines unnecessary
+
+
+temp$espaco <- rep(" ", nrow(temp))
+temp$espaco2<- rep(" ", nrow(temp))
+temp$espaco3 <- rep(" ", nrow(temp))
+temp %<>% select(`CPF/CGC`, espaco,DATA_2,VALOR,DOADOR, espaco2,espaco3,`ESPECIE RECURSO`) 
+
+readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0071.csv"))
+
+##############################################################
+############################### p8-79 - 0072
+##############################################################
+
+home <- "C:/Users/9371814/Dropbox/Brazil Contributions Data/"
+
+#Os dados deste documento tiveram que passar por uma correcao manual primeiro
+temp <- read_excel(paste0(home, "Coding/conversion/p8-79.xlsx/p8-79 - 0072 R- Nathan.xlsx"))
+
+temp <- rename(temp ,VALOR = `' R$`)
+#Fixing errors related to contribution/expenses values
+temp$VALOR %<>% str_replace_all("R\\$", "") %>% 
+  str_replace_all("RS", "") %>% 
+  str_replace_all("CX3", "00") %>% 
+  str_replace_all("f", "") %>% 
+  str_replace_all("i", "1") %>% #Intuitivamente dá para saber que o i vale 1
+  str_replace_all("o", "0") %>% 
+  str_replace_all("\"00“", "00") %>% 
+  str_replace_all("00\"", "00") %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  chartr("ÓÕÒO", "0000",.) %>% 
+  str_replace_all("Q", "0") %>% 
+  str_replace_all("C", "0") %>% 
+  str_replace_all("_", "") %>% 
+  str_replace_all("ÍQ", "10") %>% 
+  str_replace_all("J", ".") %>% 
+  str_replace_all(" ", "") %>% 
+  str_replace_all("Í", "1") %>% 
+  str_replace_all("\\(/00v", "0.00") %>% 
+  str_replace_all("ÇL","0") %>% 
+  str_replace_all("Ç","0") %>% 
+  str_replace_all("a","0") %>% 
+  str_replace_all("R$", "") %>% 
+  str_replace_all("b0]", "00") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("\\$", "") %>% 
+  str_replace_all("T0", "00") %>% 
+  str_replace_all("R", "") %>% 
+  str_replace_all("D", "0") %>% 
+  str_replace_all("I", "") %>% 
+  str_replace("\\.",",") %>% 
+  str_replace_all("\\(", "") %>% 
+  str_replace_all("\\;", "") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all("t", "00") %>% 
+  str_replace_all("G", "00")
+
+temp$VALOR[40] <- temp$VALOR[41]
+
+#Fixing problems with accents/encoding
+temp$DOADOR %<>%  chartr("ÇÀÁÃÂÉÊÍÓÕÒÔÚÜ", "CAAAAEEIOOOOUU",.) %>% 
+  str_replace_all("1", "I") %>% 
+  str_replace_all("i", "") %>% 
+  str_replace_all("\\“", "") %>% 
+  str_replace_all("/", "I") %>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_to_upper() %>% 
+  str_replace_all("\\,", "") %>% 
+  str_replace_all("\\.", "") %>% 
+  str_replace_all("\\-", "")
+
+temp$`CPF/CGC` %<>%   str_replace_all("\\^", "")  %>% #Alguns casos não poderam ser substituidos pois não tinha a informação sobre eles
+  str_replace_all("\\*", "") %>% 
+  str_replace_all("\\}", "") %>% 
+  str_replace_all("\\'", "") %>% 
+  str_replace_all(",", ".")%>% 
+  str_replace_all("\\^", "") %>% 
+  str_replace_all("r", "") %>% 
+  str_replace_all("h", "") %>% 
+  str_replace_all(". . -", "")
+
+temp$`ESPÉCIE RECURSO` %<>% str_to_upper() %>% 
+  str_replace_all("\\[", "") %>% 
+  str_replace_all("\"","") %>% 
+  str_replace_all("\\^", "")%>% 
+  str_replace_all("H", "")%>% 
+  str_replace_all("P", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("“", "") %>% 
+  str_replace_all("Í", "") %>% 
+  str_replace_all("'","") %>% 
+  str_replace_all("À", "A") %>% 
+  str_replace_all(",",".") %>% 
+  str_replace_all("~1", "") %>% 
+  str_replace_all("Ã", "A") %>% 
+  str_replace_all("~", "") %>% 
+  str_replace_all("Õ", "O") %>% 
+  str_replace_all("\\CARTÃO", "CARTAO")%>% 
+  str_replace_all("\\CARTÁO", "CARTAO")%>% 
+  str_replace_all("\\CARTÀO", "CARTAO")%>% 
+  str_replace_all("0", "0") %>% 
+  str_replace_all("\\CARNÉ", "CARNE")%>% 
+  str_replace_all("\\CARNÊ", "CARNE")%>% 
+  str_replace_all("\\CARNÈ", "CARNE") %>% 
+  str_replace_all("1", "")
+
+
+#Fixing date problems/make sure that dates are actually wrong before doing this
+#Make sure that these are the wrong dates # CONTINUAR AQUI
+
+temp$DATA_2 <- rep("/12/1998", nrow(temp))
+
+for(i in 1:nrow(temp)){
+  dia <- str_sub(temp$DATA[i], start = 1,end = 2)
+  temp$DATA_2[i] <- str_c(dia,temp$DATA_2[i])
+}
+
+#Fixing Coding Form of Resource 
+
+#Exclude lines unnecessary
+
+
+temp$espaco <- rep(" ", nrow(temp))
+temp$espaco2<- rep(" ", nrow(temp))
+temp$espaco3 <- rep(" ", nrow(temp))
+temp %<>% select(`CPF/CGC`, espaco,DATA_2,VALOR,DOADOR, espaco2,espaco3,`ESPÉCIE RECURSO`) 
+
+readr::write_csv(temp, paste0(home, "Coding/conversion/p8-79.xlsx_modified/p8-79 - 0072.csv"))
+
